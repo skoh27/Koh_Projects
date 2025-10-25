@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your TSP Guide</title>
+    
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    
+    <style>
+        /* --- Root Variables & Base Styles --- */
+        :root {
+            --navy: #003366;
+            --olive: #556B2F;
+            --beige: #F5F5DC;
+            --dark-beige: #e0e0ca;
+            --white: #ffffff;
+            --dark-text: #333333;
+            --light-text: #f0f0f0;
+            --danger: #990000;
+            --success: #006400;
+            --neutral: #5f5f5f;
+            --highlight: #f0e68c; /* Khaki */
+            --topic-rates: #d6e2f0;
+            --topic-inflation: #f0e1d6;
+            --topic-equities: #d6f0dd;
+            --topic-bonds: #e8d6f0;
+            --topic-geopolitics: #f0d6d6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--beige);
+            color: var(--dark-text);
+            line-height: 1.6;
+            font-size: 16px; /* Increased base font size */
+        }
+
+        /* --- Header & Footer --- */
+        header {
+            background-color: var(--navy);
+            color: var(--white);
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--neutral);
+            padding: 2rem 1rem;
+            border-top: 1px solid var(--dark-beige);
+            margin-top: 2rem;
+        }
+
+        /* --- Tabs Navigation --- */
+        nav.tabs {
+            display: flex;
+            flex-wrap: wrap; /* Allow tabs to wrap on mobile */
+            background-color: var(--dark-beige);
+            border-bottom: 2px solid var(--olive);
+        }
+
+        .tab-link {
+            padding: 1rem 1.25rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--navy);
+            opacity: 0.7;
+            transition: all 0.2s ease-in-out;
+            flex-grow: 1; /* Allow tabs to share space */
+            text-align: center;
+        }
+
+        .tab-link:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            opacity: 1;
+        }
+
+        .tab-link.active {
+            background-color: var(--beige);
+            border-bottom: 3px solid var(--navy);
+            opacity: 1;
+        }
+
+        /* --- Main Content & Sections --- */
+        main {
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                padding: 2rem;
+            }
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h2, h3, h4 {
+            font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+        }
+        
+        h2 {
+            color: var(--olive);
+            border-bottom: 2px solid var(--dark-beige);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--navy);
+            margin-top: 2rem;
+        }
+
+        /* --- Forms & Inputs --- */
+        .form-grid, .form-grid-multi {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .form-grid-multi {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            margin-bottom: 1.5rem;
+        }
+
+        .form-column h4 {
+            margin-top: 0;
+            color: var(--navy);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label,
+        .checkbox-group label {
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--white);
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid var(--dark-beige);
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--olive);
+        }
+
+        input[type="number"],
+        select {
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: var(--white);
+            width: 100%;
+            box-sizing: border-box; /* Ensure padding doesn't break layout */
+        }
+        
+        /* Specifics for optimizer balances */
+        .balance-input-group {
+            display: grid;
+            grid-template-columns: 80px 1fr 60px;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .balance-input-group label {
+            font-weight: 600;
+        }
+        .balance-input-group span {
+            font-size: 0.9rem;
+            color: var(--neutral);
+            text-align: right;
+        }
+
+        input[type="range"].allocation-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 4px;
+        }
+        input[type="range"].allocation-slider:hover {
+            opacity: 1;
+        }
+        input[type="range"].allocation-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--olive);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"].allocation-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--olive);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .slider-group label {
+            font-weight: normal;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 0.85rem 1.5rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: var(--olive);
+            color: var(--white);
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+            .btn {
+                width: auto;
+            }
+        }
+        
+        .btn:disabled {
+            background-color: var(--neutral);
+            cursor: not-allowed;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #3f4f23;
+        }
+
+        .btn-primary {
+            background-color: var(--navy);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #002244;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--navy);
+            border: 2px solid var(--navy);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background-color: rgba(0, 51, 102, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        /* --- Tooltip --- */
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+            text-decoration: underline dotted;
+        }
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 125%;
+            background: var(--dark-text);
+            color: var(--white);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: normal;
+            text-decoration: none;
+            width: 280px;
+            z-index: 10;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        /* --- Results & Containers --- */
+        .hidden {
+            display: none !important;
+        }
+
+        .results-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--dark-beige);
+        }
+        
+        @media (max-width: 768px) {
+            .results-container {
+                padding: 1rem;
+            }
+        }
+
+        .chart-table-split {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .chart-container {
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .chart-container-large {
+            min-width: 100%;
+            height: 350px;
+        }
+
+        .table-container {
+            flex: 2;
+            min-width: 300px;
+            overflow-x: auto; /* Allow horizontal scroll on small tables */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--dark-beige);
+            white-space: nowrap;
+        }
+        
+        td:nth-child(2), td:nth-child(3), td:nth-child(4) {
+            text-align: right;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        th {
+            background-color: #f9f9f9;
+        }
+
+        .explanation-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #fdfdfa;
+            border-left: 4px solid var(--olive);
+        }
+
+        /* --- Market Insights Tab (Old & New) --- */
+        .insight-card {
+            background-color: var(--white);
+            border: 1px solid var(--dark-beige);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+        }
+
+        .insight-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-header h4 {
+            margin: 0;
+            color: var(--navy);
+        }
+
+        .sentiment {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+        .sentiment.positive { background-color: var(--success); }
+        .sentiment.negative { background-color: var(--danger); }
+        .sentiment.neutral { background-color: var(--neutral); }
+
+        /* --- New Insights Tab Styles --- */
+        .insights-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            background-color: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--dark-beige);
+            margin-bottom: 1.5rem;
+        }
+        .insights-controls .form-group {
+            flex-grow: 1;
+            min-width: 150px;
+        }
+        .insights-controls label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .insights-controls select, .insights-controls .btn-secondary {
+            margin-top: 0;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        .filter-chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .filter-chip {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background-color: var(--dark-beige);
+            color: var(--dark-text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .filter-chip:hover {
+            background-color: #c7c7a8;
+        }
+        .filter-chip.active {
+            background-color: var(--navy);
+            color: var(--white);
+            border-color: var(--navy);
+        }
+
+        #todays-brief-card ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        #todays-brief-card li {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .headline-item {
+            border-bottom: 1px solid var(--dark-beige);
+            padding: 1rem 0;
+        }
+        .headline-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .headline-item:first-child {
+            padding-top: 0;
+        }
+        .headline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .headline-header h5 {
+            margin: 0;
+            font-size: 1.05rem;
+            color: var(--dark-text);
+            flex-grow: 1;
+        }
+        .expand-chevron {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navy);
+            cursor: pointer;
+            padding: 0 0.5rem;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .expand-chevron.expanded {
+            transform: rotate(90deg);
+        }
+        .headline-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .topic-chip {
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .topic-chip.rates { background-color: var(--topic-rates); }
+        .topic-chip.inflation { background-color: var(--topic-inflation); }
+        .topic-chip.equities { background-color: var(--topic-equities); }
+        .topic-chip.bonds { background-color: var(--topic-bonds); }
+        .topic-chip.geopolitics { background-color: var(--topic-geopolitics); }
+
+        .headline-explanation {
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background-color: #fdfdfa;
+            border-left: 3px solid var(--olive);
+        }
+        
+        #tsp-implications-card h5 {
+            font-size: 1.1rem;
+            color: var(--navy);
+            margin: 0.5rem 0;
+        }
+        .tilt-chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .tilt-chip {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .tilt-chip-label {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .tilt-chip.headwind { background-color: #fceded; color: var(--danger); border: 1px solid var(--danger); }
+        .tilt-chip.tailwind { background-color: #eaf7ea; color: var(--success); border: 1px solid var(--success); }
+        .tilt-chip.neutral { background-color: #f0f0f0; color: var(--neutral); border: 1px solid #ccc; }
+        .tilt-chip.stable { background-color: #f0f0f0; color: var(--neutral); border: 1px solid #ccc; }
+        .tilt-chip.pressure { background-color: #fff8e1; color: #b8860b; border: 1px solid #e6dbb9; }
+
+
+        /* --- Resilience Tab Specifics --- */
+        
+        /* Segmented Control for Mode Toggle */
+        .segmented-control {
+            display: flex;
+            width: 100%;
+            border: 2px solid var(--navy);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .segmented-control input[type="radio"] {
+            display: none;
+        }
+        .segmented-control label {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--navy);
+            background-color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border-left: 1px solid var(--dark-beige);
+        }
+        .segmented-control label:first-of-type {
+            border-left: none;
+        }
+        .segmented-control input[type="radio"]:checked + label {
+            background-color: var(--navy);
+            color: var(--white);
+        }
+
+        .summary-box {
+            font-size: 1.15rem;
+            font-weight: 500;
+            padding: 1.5rem;
+            background-color: var(--dark-beige);
+            border: 1px solid var(--olive);
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .simulation-count {
+            font-size: 0.9rem;
+            color: var(--neutral);
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .results-table td:last-child {
+            font-weight: 600;
+            text-align: right;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.05rem;
+        }
+
+        .warning-box {
+            color: var(--danger);
+            background-color: #fff0f0;
+            border: 1px solid var(--danger);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Loader Spinner */
+        .loader {
+            border: 5px solid var(--dark-beige);
+            border-top: 5px solid var(--navy);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        .loader-inline {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-width: 3px;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Your TSP Guide: Financial Readiness for Service Members</h1>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab-link active" data-tab="optimizer">Portfolio Optimizer</button>
+        <button class="tab-link" data-tab="insights">Market Insights</button>
+        <button class="tab-link" data-tab="resilience">Retirement Withdrawal Resilience</button>
+    </nav>
+
+    <main>
+        <!-- ====================================================== -->
+        <!-- TAB 1: PORTFOLIO OPTIMIZER                             -->
+        <!-- ====================================================== -->
+        <section id="optimizer" class="tab-content active">
+            <h2>1. Portfolio Optimizer</h2>
+            <p>Get a sample TSP allocation based on your risk tolerance and time horizon.</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="risk-tolerance">Risk Tolerance</label>
+                    <select id="risk-tolerance">
+                        <option value="Low">Low (Conservative)</option>
+                        <option value="Moderate">Moderate (Balanced)</option>
+                        <option value="High">High (Aggressive)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="investment-horizon">Investment Horizon (Years)</label>
+                    <input type="number" id="investment-horizon" value="20" min="1" max="50">
+                </div>
+            </div>
+            
+            <div class="checkbox-group" style="margin-top: 1.5rem;">
+                <input type="checkbox" id="include-balances-checkbox">
+                <label for="include-balances-checkbox">I want to include my current TSP balances (optional)</label>
+            </div>
+            
+            <div id="current-balances-section" class="results-container hidden" style="margin-top: 1rem; background-color: #fdfdfa;">
+                <h4>Current Balances ($)</h4>
+                <div class="balance-input-group">
+                    <label for="current-g">G Fund</label>
+                    <input type="number" id="current-g" class="current-balance-input" value="0" min="0" step="1">
+                    <span id="current-g-pct">0%</span>
+                </div>
+                <div class="balance-input-group">
+                    <label for="current-f">F Fund</label>
+                    <input type="number" id="current-f" class="current-balance-input" value="0" min="0" step="1">
+                    <span id="current-f-pct">0%</span>
+                </div>
+                <div class="balance-input-group">
+                    <label for="current-c">C Fund</label>
+                    <input type="number" id="current-c" class="current-balance-input" value="0" min="0" step="1">
+                    <span id="current-c-pct">0%</span>
+                </div>
+                <div class="balance-input-group">
+                    <label for="current-s">S Fund</label>
+                    <input type="number" id="current-s" class="current-balance-input" value="0" min="0" step="1">
+                    <span id="current-s-pct">0%</span>
+                </div>
+                <div class="balance-input-group">
+                    <label for="current-i">I Fund</label>
+                    <input type="number" id="current-i" class="current-balance-input" value="0" min="0" step="1">
+                    <span id="current-i-pct">0%</span>
+                </div>
+                <hr>
+                <div class="balance-input-group">
+                    <label>Total</label>
+                    <input type="text" id="current-total" style="border:none; background:transparent; font-weight: bold;" value="$0.00" readonly>
+                    <span>100%</span>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="calculate-optimizer" class="btn">Calculate Allocation</button>
+                <button id="copy-to-resilience-btn" class="btn btn-secondary hidden">Copy to Withdrawal Resilience</button>
+            </div>
+
+            <div id="optimizer-results" class="results-container hidden">
+                <div id="target-allocation-container">
+                    <h3>Recommended Target Allocation</h3>
+                    <div class="chart-table-split">
+                        <div class="chart-container">
+                            <canvas id="optimizer-pie-chart"></canvas>
+                        </div>
+                        <div class="table-container">
+                            <table id="allocation-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fund</th>
+                                        <th>Allocation</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows will be inserted by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="rebalance-plan-container" class="hidden">
+                    <h3>Rebalance Plan</h3>
+                    <div class="table-container">
+                        <table id="rebalance-table">
+                            <thead>
+                                <tr>
+                                    <th>Fund</th>
+                                    <th>Current ($)</th>
+                                    <th>Target ($)</th>
+                                    <th>Rebalance ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be inserted by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="explanation-box" id="allocation-explanation">
+                    <!-- Explanation will be inserted by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- TAB 2: MARKET INSIGHTS                                 -->
+        <!-- ====================================================== -->
+        <section id="insights" class="tab-content">
+            <h2>2. Market Insights (Simulated)</h2>
+            <p>Understand how market news can (or shouldn't) affect your long-term plan.</p>
+            
+            <!-- Controls -->
+            <div class="insights-controls">
+                <div class="form-group" style="min-width: 200px;">
+                    <label for="sentiment-filter">Filter by Sentiment</label>
+                    <select id="sentiment-filter">
+                        <option value="All">All Sentiments</option>
+                        <option value="Positive">Positive</option>
+                        <option value="Neutral">Neutral</option>
+                        <option value="Negative">Negative</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex-grow: 2;">
+                    <label>Filter by Topic</label>
+                    <div class="filter-chip-group" id="topic-filter-group">
+                        <!-- Topic filter chips will be injected by JS -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reading-mode">Reading Mode</label>
+                    <select id="reading-mode">
+                        <option value="Brief">Brief (Click to expand)</option>
+                        <option value="Detailed">Detailed (Show all)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label> <!-- Spacer for alignment -->
+                    <button id="export-brief-btn" class="btn btn-secondary">Export Brief (.txt)</button>
+                </div>
+            </div>
+
+            <!-- Card 1: Today's Brief -->
+            <div id="todays-brief-card" class="insight-card">
+                <h3>Today's Brief</h3>
+                <ul id="brief-list">
+                    <!-- Brief points will be injected by JS -->
+                </ul>
+            </div>
+
+            <!-- Card 3: TSP Implications (Placed before feed for mobile) -->
+            <div id="tsp-implications-card" class="insight-card">
+                <h3 style="margin-top: 0;">What this could mean for TSP funds</h3>
+                <p id="implications-summary">
+                    <!-- Summary paragraph will be injected by JS -->
+                </p>
+                <h5>Suggested Tilts Based on Feed:</h5>
+                <div class="tilt-chip-group" id="implications-chip-group">
+                    <!-- Tilt chips will be injected by JS -->
+                </div>
+            </div>
+
+            <!-- Card 2: Headline Feed -->
+            <div id="headline-feed-card" class="insight-card">
+                <h3 style="margin-top: 0;">Headline Feed</h3>
+                <div id="headline-list-container">
+                    <!-- Headlines will be injected by JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- TAB 3: RETIREMENT WITHDRAWAL RESILIENCE                 -->
+        <!-- ====================================================== -->
+        <section id="resilience" class="tab-content">
+            <h2>3. Retirement Withdrawal Resilience</h2>
+            <p>Stress-test your retirement plan using a 10,000-path Monte Carlo simulation.</p>
+
+            <!-- Mode Toggle -->
+            <div class="segmented-control">
+                <input type="radio" id="mode-a" name="resilience-mode" value="A" checked>
+                <label for="mode-a" data-tooltip="Calculates how much you can safely withdraw from a known portfolio value.">
+                    Compute Sustainable Withdrawal
+                </label>
+                
+                <input type="radio" id="mode-b" name="resilience-mode" value="B">
+                <label for="mode-b" data-tooltip="Calculates how much you need to start with to support a desired withdrawal amount.">
+                    Compute Required Retirement Amount
+                </label>
+            </div>
+
+            <div class="form-grid-multi">
+                <!-- Column 1: Core Inputs -->
+                <div class="form-column">
+                    <h4>Core Scenario</h4>
+                    
+                    <!-- Mode A Input -->
+                    <div id="mode-a-inputs" class="form-group">
+                        <label for="portfolio-value">Portfolio Value ($)</label>
+                        <input type="number" id="portfolio-value" value="500000" step="1000">
+                    </div>
+                    
+                    <!-- Mode B Input -->
+                    <div id="mode-b-inputs" class="form-group hidden">
+                        <label for="desired-monthly-withdrawal">Desired Monthly Withdrawal ($)</label>
+                        <input type="number" id="desired-monthly-withdrawal" value="2000" step="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="retirement-horizon">Retirement Horizon (Years)</label>
+                        <input type="number" id="retirement-horizon" value="30" min="5" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="inflation-rate">Baseline Inflation (%)</label>
+                        <input type="number" id="inflation-rate" value="2.5" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="success-probability">Target Success Probability (%)</label>
+                        <input type="number" id="success-probability" value="90" min="50" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="num-simulations">Simulations</label>
+                        <input type="number" id="num-simulations" value="10000" min="1000" max="50000" step="1000" readonly>
+                    </div>
+                </div>
+
+                <!-- Column 2: Allocations -->
+                <div class="form-column">
+                    <h4>Fund Allocations (<span id="total-allocation">100</span>%)</h4>
+                    <div class="form-group slider-group">
+                        <label for="g-fund-slider">G Fund: <span id="g-fund-value">20</span>%</label>
+                        <input type="range" id="g-fund-slider" class="allocation-slider" min="0" max="100" value="20" step="1">
+                    </div>
+                    <div class="form-group slider-group">
+                        <label for="f-fund-slider">F Fund: <span id="f-fund-value">20</span>%</label>
+                        <input type="range" id="f-fund-slider" class="allocation-slider" min="0" max="100" value="20" step="1">
+                    </div>
+                    <div class="form-group slider-group">
+                        <label for="c-fund-slider">C Fund: <span id="c-fund-value">30</span>%</label>
+                        <input type="range" id="c-fund-slider" class="allocation-slider" min="0" max="100" value="30" step="1">
+                    </div>
+                    <div class="form-group slider-group">
+                        <label for="s-fund-slider">S Fund: <span id="s-fund-value">20</span>%</label>
+                        <input type="range" id="s-fund-slider" class="allocation-slider" min="0" max="100" value="20" step="1">
+                    </div>
+                    <div class="form-group slider-group">
+                        <label for="i-fund-slider">I Fund: <span id="i-fund-value">10</span>%</label>
+                        <input type="range" id="i-fund-slider" class="allocation-slider" min="0" max="100" value="10" step="1">
+                    </div>
+                </div>
+
+                <!-- Column 3: Stress Tests -->
+                <div class="form-column">
+                    <h4>Year 1 Stress Test (Optional)</h4>
+                    <div class="form-group">
+                        <label for="equity-drop">Equity Market Drop (C/S/I)</label>
+                        <select id="equity-drop">
+                            <option value="0">0% (No Shock)</option>
+                            <option value="-0.10">-10%</option>
+                            <option value="-0.15">-15%</option>
+                            <option value="-0.25">-25%</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rate-rise">Interest Rate Rise (G/F)</label>
+                        <select id="rate-rise">
+                            <option value="0">0% (No Shock)</option>
+                            <option value="0.01">+1%</option>
+                            <option value="0.02">+2%</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="inflation-shock">Inflation Shock</label>
+                        <select id="inflation-shock">
+                            <option value="0">0% (No Shock)</option>
+                            <option value="0.01">+1%</option>
+                            <option value="0.02">+2%</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="allocation-warning" class="warning-box hidden">
+                Allocation must sum to 100% to run the simulation.
+            </div>
+
+            <div class="button-group">
+                <button id="run-simulation" class="btn btn-primary">
+                    <span id="run-simulation-text">Run Simulation</span>
+                    <div id="simulation-loader" class="loader loader-inline hidden"></div>
+                </button>
+                <button id="download-summary-btn" class="btn btn-secondary hidden">Download Summary (.json)</button>
+            </div>
+
+
+            <div id="resilience-results" class="results-container hidden">
+                <h3>Simulation Results</h3>
+                <div class="summary-box" id="resilience-summary">
+                    <!-- Summary will be inserted by JS -->
+                </div>
+                
+                <div class="form-grid-multi">
+                    <div class="form-column">
+                        <h4>Key Metrics</h4>
+                        <table class="results-table">
+                            <!-- Mode A Results -->
+                            <tr id="mode-a-result-annual" class="mode-a-result">
+                                <td>Sustainable Annual Withdrawal</td>
+                                <td id="annual-withdrawal-result"></td>
+                            </tr>
+                            <tr id="mode-a-result-monthly" class="mode-a-result">
+                                <td>Sustainable Monthly Withdrawal</td>
+                                <td id="monthly-withdrawal-result"></td>
+                            </tr>
+                            
+                            <!-- Mode B Results -->
+                            <tr id="mode-b-result-portfolio" class="mode-b-result hidden">
+                                <td>Required Starting Portfolio</td>
+                                <td id="required-portfolio-result"></td>
+                            </tr>
+                            
+                            <!-- Shared Results -->
+                            <tr>
+                                <td>Achieved Success Probability</td>
+                                <td id="success-prob-result"></td>
+                            </tr>
+                            <tr>
+                                <td>Depletion Year (10th Percentile)</td>
+                                <td id="depletion-year-result"></td>
+                            </tr>
+                        </table>
+                        <div class="simulation-count" id="simulation-count-display"></div>
+                    </div>
+                    <div class="form-column">
+                        <h4>Simulated Portfolio Balance (Nominal)</h4>
+                        <div class="chart-container-large">
+                            <canvas id="resilience-line-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>This tool is for educational purposes only and does not provide financial advice. Consult with a qualified financial advisor before making any decisions. Simulated returns are not guarantees of future performance. Headlines are illustrative and for educational use only—no financial advice is provided or implied.</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Global Variables ---
+            let optimizerChart = null;
+            let resilienceChart = null;
+            let lastTargetAllocation = null; // Store optimizer results
+            let lastSimulationParams = null; // Store simulation inputs
+            let lastSimulationResults = null; // Store simulation outputs
+            
+            const fundTooltips = {
+                G: "G Fund (Gov't Securities): Pays interest. Protected from loss. Invests in short-term U.S. Treasury securities.",
+                F: "F Fund (Fixed Income): Pays interest. Risk of loss. Invests in U.S. government, corporate, and mortgage-backed bonds.",
+                C: "C Fund (Common Stock): High risk. Invests in the S&P 500 index, tracking 500 large U.S. companies.",
+                S: "S Fund (Small Cap): Very high risk. Invests in small-to-mid-sized U.S. companies not in the S&P 500.",
+                I: "I Fund (International): High risk. Invests in large companies across 20+ developed countries outside the U.S."
+            };
+            
+            // --- Helper Functions ---
+            const $ = (id) => document.getElementById(id);
+            const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+            const intFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+            // --- Tab Switching Logic ---
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    const tabId = link.getAttribute('data-tab');
+
+                    tabLinks.forEach(item => item.classList.remove('active'));
+                    tabContents.forEach(item => item.classList.remove('active'));
+
+                    link.classList.add('active');
+                    $(tabId).classList.add('active');
+                });
+            });
+
+            // ======================================================
+            // TAB 1: PORTFOLIO OPTIMIZER
+            // ======================================================
+            const calculateOptimizerBtn = $('calculate-optimizer');
+            const includeBalancesCheckbox = $('include-balances-checkbox');
+            const currentBalancesSection = $('current-balances-section');
+            const currentBalanceInputs = document.querySelectorAll('.current-balance-input');
+            const rebalancePlanContainer = $('rebalance-plan-container');
+            const optimizerResults = $('optimizer-results');
+            const copyToResilienceBtn = $('copy-to-resilience-btn');
+            
+            if (calculateOptimizerBtn) {
+                calculateOptimizerBtn.addEventListener('click', runPortfolioOptimizer);
+            }
+
+            includeBalancesCheckbox.addEventListener('change', () => {
+                currentBalancesSection.classList.toggle('hidden', !includeBalancesCheckbox.checked);
+                // Hide rebalance plan if unchecked, it will be reshown on calculate
+                if (!includeBalancesCheckbox.checked) {
+                    rebalancePlanContainer.classList.add('hidden');
+                }
+            });
+
+            currentBalanceInputs.forEach(input => {
+                input.addEventListener('input', updateCurrentAllocations);
+            });
+
+            function updateCurrentAllocations() {
+                let totalBalance = 0;
+                const balances = {};
+                
+                currentBalanceInputs.forEach(input => {
+                    const fund = input.id.split('-')[1];
+                    const value = parseFloat(input.value) || 0;
+                    if (value < 0) {
+                        input.value = 0;
+                        value = 0;
+                    }
+                    balances[fund] = value;
+                    totalBalance += value;
+                });
+                
+                $('current-total').value = formatter.format(totalBalance);
+
+                ['g', 'f', 'c', 's', 'i'].forEach(fund => {
+                    const pct = totalBalance > 0 ? (balances[fund] / totalBalance) * 100 : 0;
+                    $(`current-${fund}-pct`).textContent = `${pct.toFixed(0)}%`;
+                });
+            }
+            
+            copyToResilienceBtn.addEventListener('click', () => {
+                if (lastTargetAllocation) {
+                    updateResilienceSliders(lastTargetAllocation);
+                    // Switch to resilience tab
+                    tabLinks.forEach(link => link.classList.remove('active'));
+                    tabContents.forEach(item => item.classList.remove('active'));
+                    document.querySelector('[data-tab="resilience"]').classList.add('active');
+                    $('resilience').classList.add('active');
+                }
+            });
+
+            function runPortfolioOptimizer() {
+                const risk = $('risk-tolerance').value;
+                const horizon = parseInt($('investment-horizon').value);
+
+                const allocation = getAllocation(risk, horizon);
+                lastTargetAllocation = allocation; // Save for copy button
+                
+                const explanation = getExplanation(risk, horizon, allocation);
+
+                displayAllocationTable(allocation);
+                displayAllocationPieChart(allocation);
+                $('allocation-explanation').innerHTML = `<p><strong>Why this allocation?</strong> ${explanation}</p>`;
+                
+                // Handle rebalancing
+                if (includeBalancesCheckbox.checked) {
+                    let totalBalance = 0;
+                    const currentBalances = {};
+                    currentBalanceInputs.forEach(input => {
+                        const fund = input.id.split('-')[1].toUpperCase();
+                        const value = parseFloat(input.value) || 0;
+                        currentBalances[fund] = value;
+                        totalBalance += value;
+                    });
+                    
+                    if (totalBalance > 0) {
+                        displayRebalanceTable(currentBalances, totalBalance, allocation);
+                        rebalancePlanContainer.classList.remove('hidden');
+                    } else {
+                        rebalancePlanContainer.classList.add('hidden');
+                    }
+                } else {
+                     rebalancePlanContainer.classList.add('hidden');
+                }
+
+                optimizerResults.classList.remove('hidden');
+                copyToResilienceBtn.classList.remove('hidden');
+            }
+
+            function getAllocation(risk, horizon) {
+                // Simplified allocation logic
+                let alloc = { G: 0, F: 0, C: 0, S: 0, I: 0 };
+
+                if (risk === 'Low') {
+                    if (horizon < 5)         { alloc = { G: 60, F: 40, C: 0,  S: 0,  I: 0  }; }
+                    else if (horizon < 15)   { alloc = { G: 40, F: 30, C: 20, S: 5,  I: 5  }; }
+                    else                     { alloc = { G: 30, F: 30, C: 25, S: 10, I: 5  }; }
+                } else if (risk === 'Moderate') {
+                    if (horizon < 5)         { alloc = { G: 30, F: 30, C: 25, S: 10, I: 5  }; }
+                    else if (horizon < 15)   { alloc = { G: 10, F: 20, C: 40, S: 15, I: 15 }; }
+                    else                     { alloc = { G: 5,  F: 15, C: 45, S: 20, I: 15 }; }
+                } else if (risk === 'High') {
+                    if (horizon < 5)         { alloc = { G: 10, F: 10, C: 50, S: 20, I: 10 }; }
+                    else if (horizon < 15)   { alloc = { G: 0,  F: 5,  C: 50, S: 25, I: 20 }; }
+                    else                     { alloc = { G: 0,  F: 5,  C: 45, S: 30, I: 20 }; }
+                }
+                return alloc;
+            }
+
+            function getExplanation(risk, horizon, alloc) {
+                if (risk === 'Low') {
+                    return `With a ${risk.toLowerCase()} risk tolerance, your priority is capital preservation. This portfolio is heavily weighted towards the <strong>G and F Funds</strong> to protect your principal and provide stable returns, especially given your ${horizon}-year horizon.`;
+                }
+                if (risk === 'Moderate' && horizon > 10) {
+                    return `This <strong>balanced</strong> approach provides significant growth potential from the stock funds (<strong>C, S, I Funds</strong>) while using bonds (<strong>G and F Funds</strong>) to reduce volatility. Since you have over a decade, you can weather market downturns for higher long-term returns.`;
+                }
+                if (risk === 'High' && horizon > 15) {
+                    return `With an aggressive tolerance and a long time horizon (${horizon} years), you are positioned to maximize growth. This allocation is almost entirely in stocks (<strong>C, S, and I Funds</strong>) which, while volatile, have historically provided the highest returns over long periods.`;
+                }
+                // Default
+                return `This allocation balances your ${risk.toLowerCase()} risk tolerance with your ${horizon}-year time horizon. The stock funds (C, S, I) are for growth, while the bond funds (G, F) provide stability.`;
+            }
+
+            function displayAllocationTable(allocation) {
+                const tableBody = $('allocation-table').tBodies[0];
+                tableBody.innerHTML = ''; // Clear old data
+                
+                ['G', 'F', 'C', 'S', 'I'].forEach(fund => {
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td><span data-tooltip="${fundTooltips[fund]}">${fund} Fund</span></td>
+                        <td style="text-align: right; font-family: monospace; font-size: 1rem;">${allocation[fund]}%</td>
+                        <td>${fundTooltips[fund].split(':')[1].split('.')[0].trim()}</td>
+                    `;
+                });
+            }
+            
+            function displayRebalanceTable(current, total, target) {
+                const tableBody = $('rebalance-table').tBodies[0];
+                tableBody.innerHTML = ''; // Clear old data
+                
+                ['G', 'F', 'C', 'S', 'I'].forEach(fund => {
+                    const targetDollar = (target[fund] / 100) * total;
+                    const delta = targetDollar - current[fund];
+                    
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td><span data-tooltip="${fundTooltips[fund]}">${fund} Fund</span></td>
+                        <td>${formatter.format(current[fund])}</td>
+                        <td>${formatter.format(targetDollar)}</td>
+                        <td style="color: ${delta >= 0 ? 'var(--success)' : 'var(--danger)'}">${delta >= 0 ? '+' : ''}${formatter.format(delta)}</td>
+                    `;
+                });
+            }
+
+            function displayAllocationPieChart(allocation) {
+                const ctx = $('optimizer-pie-chart').getContext('2d');
+                const labels = ['G Fund', 'F Fund', 'C Fund', 'S Fund', 'I Fund'];
+                const data = [allocation.G, allocation.F, allocation.C, allocation.S, allocation.I];
+                
+                if (optimizerChart) {
+                    optimizerChart.destroy();
+                }
+
+                optimizerChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: ['#556B2F', '#BDB76B', '#003366', '#4682B4', '#87CEEB']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.raw}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // ======================================================
+            // TAB 2: MARKET INSIGHTS (NEW LOGIC)
+            // ======================================================
+            
+            // --- Simulated Data ---
+            const simulatedHeadlines = [
+                { id: 1, text: "Fed signals 'higher for longer' rate hikes to combat inflation.", sentiment: "Negative", topic: "Rates", keywords: ["rate hike", "inflation"], explanation: "The central bank plans to keep interest rates high, which can slow down the economy and make bonds less valuable." },
+                { id: 2, text: "Strong jobs report shows economic resilience, but fuels inflation fears.", sentiment: "Neutral", topic: "Inflation", keywords: ["inflation", "job losses"], explanation: "A strong economy is good, but it may lead to persistent inflation, forcing the Fed to keep rates high." },
+                { id: 3, text: "Tech sector leads market rally as S&P 500 hits new highs.", sentiment: "Positive", topic: "Equities", keywords: ["stocks rally", "SPX up"], explanation: "Large-cap stocks (like in the C Fund) are performing well, driving market optimism." },
+                { id: 4, text: "Geopolitical tensions in Asia disrupt supply chains, raising cost concerns.", sentiment: "Negative", topic: "Geopolitics", keywords: ["inflation up"], explanation: "Global instability can lead to higher prices for goods, which fuels inflation and hurts market stability." },
+                { id: 5, text: "Treasury yields rise to 3-month high on hawkish Fed comments.", sentiment: "Negative", topic: "Bonds", keywords: ["yields rise", "rate hike"], explanation: "When bond yields rise, the price of existing bonds (like those in the F Fund) typically falls." },
+                { id: 6, text: "CPI report comes in cooler than expected; inflation may be easing.", sentiment: "Positive", topic: "Inflation", keywords: ["inflation"], explanation: "Signs of lower inflation are positive for the market, as it may allow the central bank to lower interest rates." },
+                { id: 7, text: "Small-cap stocks lag behind large-caps amid slowdown fears.", sentiment: "Neutral", topic: "Equities", keywords: ["slowdown", "risk-on"], explanation: "Investors are hesitant to buy smaller company stocks (like in the S Fund) when the economy might be slowing." },
+                { id: 8, text: "Manufacturing data shows surprise contraction, sparking recession risk chatter.", sentiment: "Negative", topic: "Equities", keywords: ["recession risk", "slowdown"], explanation: "A shrinking manufacturing sector is a classic sign of an economic slowdown, which is typically bad for stocks." },
+                { id: 9, text: "European markets show surprising strength, I Fund gets a boost.", sentiment: "Positive", topic: "Equities", keywords: ["stocks rally"], explanation: "International stocks (like in the I Fund) are performing well, adding diversification to U.S. holdings." },
+                { id: 10, text: "Analysts predict sticky inflation to persist through next year.", sentiment: "Negative", topic: "Inflation", keywords: ["sticky inflation", "inflation up"], explanation: "If inflation stays high, it will continue to erode the purchasing power of savings and put pressure on bond funds." }
+            ];
+
+            const allTopics = [...new Set(simulatedHeadlines.map(h => h.topic))];
+            let selectedTopics = [...allTopics]; // Start with all topics selected
+
+            // --- Rules Engine Data ---
+            const keywordRules = {
+                // Negative/Defensive
+                "rate hike": { G: "stable", F: "headwind", C: "pressure", S: "pressure", I: "pressure" },
+                "yields rise": { G: "stable", F: "headwind", C: "pressure", S: "pressure", I: "pressure" },
+                "inflation up": { G: "neutral", F: "headwind", C: "pressure", S: "pressure", I: "pressure", Note: "Real returns face pressure." },
+                "sticky inflation": { G: "neutral", F: "headwind", C: "pressure", S: "pressure", I: "pressure", Note: "Real returns face pressure." },
+                "recession risk": { G: "tailwind", F: "tailwind", C: "headwind", S: "headwind", I: "headwind" },
+                "slowdown": { G: "tailwind", F: "tailwind", C: "headwind", S: "headwind", I: "headwind" },
+                "job losses": { G: "tailwind", F: "tailwind", C: "headwind", S: "headwind", I: "headwind" },
+                // Positive/Growth
+                "stocks rally": { G: "neutral", F: "neutral", C: "tailwind", S: "tailwind", I: "tailwind" },
+                "risk-on": { G: "neutral", F: "neutral", C: "tailwind", S: "tailwind", I: "tailwind" },
+                "SPX up": { G: "neutral", F: "neutral", C: "tailwind", S: "tailwind", I: "tailwind" }
+            };
+            
+            // --- Insights Tab Elements ---
+            const sentimentFilter = $("sentiment-filter");
+            const topicFilterGroup = $("topic-filter-group");
+            const readingMode = $("reading-mode");
+            const exportBriefBtn = $("export-brief-btn");
+            const briefList = $("brief-list");
+            const implicationsSummary = $("implications-summary");
+            const implicationsChipGroup = $("implications-chip-group");
+            const headlineListContainer = $("headline-list-container");
+            
+            // --- Insights Initialization ---
+            function initializeInsightsTab() {
+                // 1. Setup Topic Filters
+                topicFilterGroup.innerHTML = '';
+                allTopics.forEach(topic => {
+                    const chip = document.createElement('span');
+                    chip.className = 'filter-chip active';
+                    chip.dataset.topic = topic;
+                    chip.textContent = topic;
+                    chip.addEventListener('click', toggleTopicFilter);
+                    topicFilterGroup.appendChild(chip);
+                });
+                
+                // 2. Add Listeners
+                sentimentFilter.addEventListener('change', updateInsightsView);
+                readingMode.addEventListener('change', updateInsightsView);
+                exportBriefBtn.addEventListener('click', exportBrief);
+
+                // 3. Initial Render
+                updateInsightsView();
+            }
+            
+            function toggleTopicFilter(event) {
+                const chip = event.target;
+                const topic = chip.dataset.topic;
+                chip.classList.toggle('active');
+                
+                if (chip.classList.contains('active')) {
+                    selectedTopics.push(topic);
+                } else {
+                    selectedTopics = selectedTopics.filter(t => t !== topic);
+                }
+                updateInsightsView();
+            }
+
+            // --- Main Update Function for Insights ---
+            function updateInsightsView() {
+                const sentiment = sentimentFilter.value;
+                const mode = readingMode.value;
+
+                // 1. Filter Headlines
+                const filteredHeadlines = simulatedHeadlines.filter(h => {
+                    const sentimentMatch = (sentiment === 'All' || h.sentiment === sentiment);
+                    const topicMatch = selectedTopics.includes(h.topic);
+                    return sentimentMatch && topicMatch;
+                });
+                
+                // 2. Analyze Filtered Headlines
+                const analysis = analyzeHeadlines(filteredHeadlines);
+                
+                // 3. Render Brief & Implications
+                renderBriefAndImplications(analysis);
+                
+                // 4. Render Headline Feed
+                renderHeadlineFeed(filteredHeadlines, mode);
+            }
+            
+            function analyzeHeadlines(filteredHeadlines) {
+                const analysis = {
+                    brief: [],
+                    implications: { G: "neutral", F: "neutral", C: "neutral", S: "neutral", I: "neutral" },
+                    summary: "",
+                    notes: new Set()
+                };
+                
+                let sentimentScore = 0;
+                const keywordCounts = {};
+
+                // Aggregate sentiments and keywords
+                filteredHeadlines.forEach(h => {
+                    if (h.sentiment === 'Positive') sentimentScore++;
+                    if (h.sentiment === 'Negative') sentimentScore--;
+                    
+                    h.keywords.forEach(kw => {
+                        keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
+                        
+                        // Apply rules
+                        if (keywordRules[kw]) {
+                            const rule = keywordRules[kw];
+                            Object.keys(rule).forEach(key => {
+                                if (key === 'Note') {
+                                    analysis.notes.add(rule.Note);
+                                } else {
+                                    // Simple priority: headwind/tailwind overrides pressure/neutral
+                                    const current = analysis.implications[key];
+                                    const next = rule[key];
+                                    if (next === 'headwind' || next === 'tailwind') {
+                                        analysis.implications[key] = next;
+                                    } else if (next === 'pressure' && current !== 'headwind' && current !== 'tailwind') {
+                                        analysis.implications[key] = next;
+                                    } else if (next === 'stable' && current === 'neutral') {
+                                        analysis.implications[key] = next;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                // --- Generate Brief ---
+                if (keywordCounts["rate hike"] || keywordCounts["yields rise"]) {
+                    analysis.brief.push("Interest rates are trending higher on hawkish central bank commentary.");
+                } else {
+                    analysis.brief.push("Interest rates remain stable, awaiting new economic data.");
+                }
+                
+                if (keywordCounts["inflation up"] || keywordCounts["sticky inflation"]) {
+                    analysis.brief.push("Inflation fears are elevated, with data showing persistent price pressures.");
+                } else {
+                    analysis.brief.push("Inflation appears to be easing, boosting market confidence.");
+                }
+                
+                if (keywordCounts["recession risk"] || keywordCounts["slowdown"]) {
+                    analysis.brief.push("Economic slowdown fears are growing, leading to defensive posturing.");
+                } else if (sentimentScore > 0) {
+                    analysis.brief.push("Market sentiment is positive, with equities leading gains.");
+                } else {
+                    analysis.brief.push("Equity markets are mixed as investors weigh competing economic signals.");
+                }
+                
+                // --- Generate Summary ---
+                let summaryParts = [];
+                if (analysis.implications.F === 'headwind' || analysis.implications.C === 'pressure') {
+                    summaryParts.push("Rising rates and inflation concerns are creating headwinds for bond funds (F Fund) and putting pressure on stock funds (C, S, I).");
+                }
+                if (analysis.implications.G === 'tailwind' || analysis.implications.G === 'stable') {
+                    summaryParts.push("The G Fund remains a stable option for capital preservation.");
+                }
+                if (analysis.implications.C === 'tailwind') {
+                    summaryParts.push("Positive market sentiment is providing a tailwind for stock funds (C, S, I).");
+                }
+                if (analysis.implications.C === 'headwind') {
+                    summaryParts.push("Recession fears suggest a defensive tilt, favoring G and F funds over C, S, and I funds.");
+                }
+                if (summaryParts.length === 0) {
+                    summaryParts.push("The market is showing mixed signals, suggesting a balanced approach remains prudent.");
+                }
+                if (analysis.notes.size > 0) {
+                    summaryParts.push([...analysis.notes].join(' '));
+                }
+                analysis.summary = summaryParts.join(' ');
+                
+                return analysis;
+            }
+
+            function renderBriefAndImplications(analysis) {
+                // 1. Render Brief
+                briefList.innerHTML = analysis.brief.map(item => `<li>${item}</li>`).join('');
+                
+                // 2. Render Implications Summary
+                implicationsSummary.textContent = analysis.summary;
+                
+                // 3. Render Implications Chips
+                implicationsChipGroup.innerHTML = '';
+                ['G', 'F', 'C', 'S', 'I'].forEach(fund => {
+                    const tilt = analysis.implications[fund];
+                    const chip = document.createElement('div');
+                    chip.className = `tilt-chip ${tilt}`;
+                    chip.innerHTML = `<span class="tilt-chip-label">${fund}</span> ${tilt}`;
+                    implicationsChipGroup.appendChild(chip);
+                });
+            }
+            
+            function renderHeadlineFeed(headlines, mode) {
+                headlineListContainer.innerHTML = '';
+                if (headlines.length === 0) {
+                    headlineListContainer.innerHTML = '<p>No headlines match your filters.</p>';
+                    return;
+                }
+                
+                headlines.forEach(h => {
+                    const item = document.createElement('div');
+                    item.className = 'headline-item';
+                    item.innerHTML = `
+                        <div class="headline-header">
+                            <h5>${h.text}</h5>
+                            <span class="expand-chevron" data-headline-id="${h.id}">+</span>
+                        </div>
+                        <div class="headline-meta">
+                            <span class="sentiment ${h.sentiment.toLowerCase()}">${h.sentiment}</span>
+                            <span class="topic-chip ${h.topic.toLowerCase()}">${h.topic}</span>
+                        </div>
+                        <div class="headline-explanation ${mode === 'Detailed' ? '' : 'hidden'}" id="explanation-${h.id}">
+                            ${h.explanation}
+                        </div>
+                    `;
+                    headlineListContainer.appendChild(item);
+                });
+                
+                // Add click listeners to chevrons
+                headlineListContainer.querySelectorAll('.expand-chevron').forEach(chevron => {
+                    chevron.addEventListener('click', () => {
+                        const id = chevron.dataset.headlineId;
+                        const explanation = $(`explanation-${id}`);
+                        const isExpanded = !explanation.classList.contains('hidden');
+                        
+                        explanation.classList.toggle('hidden', isExpanded);
+                        chevron.classList.toggle('expanded', !isExpanded);
+                        chevron.textContent = isExpanded ? '+' : '−';
+                    });
+                });
+            }
+            
+            function exportBrief() {
+                let text = "=== Today's TSP Brief ===\n\n";
+                text += "--- Today's Brief ---\n";
+                briefList.querySelectorAll('li').forEach(li => {
+                    text += `* ${li.textContent}\n`;
+                });
+                
+                text += "\n--- TSP Implications ---\n";
+                text += implicationsSummary.textContent;
+                
+                text += "\n\n--- Suggested Tilts ---\n";
+                implicationsChipGroup.querySelectorAll('.tilt-chip').forEach(chip => {
+                    text += `${chip.textContent.replace(/\s+/g, ' ')}\n`;
+                });
+                
+                text += "\n\nDisclaimer: This tool is for educational purposes only. Headlines are illustrative. No financial advice is provided or implied.";
+                
+                const blob = new Blob([text], { type: 'text/plain' });
+                const href = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = href;
+                a.download = 'TSP_Brief.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(href);
+            }
+            
+            // --- End of Insights Logic ---
+
+
+            // ======================================================
+            // TAB 3: RETIREMENT WITHDRAWAL RESILIENCE
+            // ======================================================
+            const runSimulationBtn = $('run-simulation');
+            const runSimulationText = $('run-simulation-text');
+            const allocationSliders = document.querySelectorAll('.allocation-slider');
+            const totalAllocationSpan = $('total-allocation');
+            const allocationWarning = $('allocation-warning');
+            const resilienceResultsContainer = $('resilience-results');
+            const loader = $('simulation-loader');
+            const resilienceModeRadios = document.querySelectorAll('input[name="resilience-mode"]');
+            const downloadSummaryBtn = $('download-summary-btn');
+            
+            const modeAInputs = $('mode-a-inputs');
+            const modeBInputs = $('mode-b-inputs');
+            const modeAResults = document.querySelectorAll('.mode-a-result');
+            const modeBResults = document.querySelectorAll('.mode-b-result');
+
+            // --- Slider logic ---
+            function updateAllocationTotal() {
+                let total = 0;
+                allocationSliders.forEach(slider => {
+                    const valueSpan = $(`${slider.id.replace('-slider', '-value')}`);
+                    const value = parseInt(slider.value);
+                    if (valueSpan) valueSpan.textContent = value;
+                    total += value;
+                });
+                totalAllocationSpan.textContent = total;
+                
+                const isValid = total === 100;
+                totalAllocationSpan.style.color = isValid ? 'var(--success)' : 'var(--danger)';
+                allocationWarning.classList.toggle('hidden', isValid);
+                runSimulationBtn.disabled = !isValid;
+            }
+            allocationSliders.forEach(slider => slider.addEventListener('input', updateAllocationTotal));
+            
+            // --- Mode Toggle Logic ---
+            function toggleResilienceMode() {
+                const mode = document.querySelector('input[name="resilience-mode"]:checked').value;
+                if (mode === 'A') {
+                    modeAInputs.classList.remove('hidden');
+                    modeBInputs.classList.add('hidden');
+                    modeAResults.forEach(el => el.classList.remove('hidden'));
+                    modeBResults.forEach(el => el.classList.add('hidden'));
+                    runSimulationText.textContent = 'Run Simulation';
+                } else {
+                    modeAInputs.classList.add('hidden');
+                    modeBInputs.classList.remove('hidden');
+                    modeAResults.forEach(el => el.classList.add('hidden'));
+                    modeBResults.forEach(el => el.classList.remove('hidden'));
+                    runSimulationText.textContent = 'Calculate Required Amount';
+                }
+                resilienceResultsContainer.classList.add('hidden'); // Hide old results on toggle
+            }
+            resilienceModeRadios.forEach(radio => radio.addEventListener('change', toggleResilienceMode));
+
+            // --- Copy from Optimizer Logic ---
+            function updateResilienceSliders(allocation) {
+                if (!allocation) return;
+                $('g-fund-slider').value = allocation.G;
+                $('f-fund-slider').value = allocation.F;
+                $('c-fund-slider').value = allocation.C;
+                $('s-fund-slider').value = allocation.S;
+                $('i-fund-slider').value = allocation.I;
+                updateAllocationTotal(); // Update values and 100% total
+            }
+
+            // --- Button click ---
+            if (runSimulationBtn) {
+                runSimulationBtn.addEventListener('click', () => {
+                    // Show loader, hide old results
+                    loader.classList.remove('hidden');
+                    resilienceResultsContainer.classList.add('hidden');
+                    downloadSummaryBtn.classList.add('hidden');
+                    runSimulationBtn.disabled = true;
+                    
+                    // Use setTimeout to allow UI to update (show loader) before blocking
+                    setTimeout(runResilienceSimulation, 50);
+                });
+            }
+            
+            if (downloadSummaryBtn) {
+                downloadSummaryBtn.addEventListener('click', downloadSummary);
+            }
+            
+            function collectInputs() {
+                const mode = document.querySelector('input[name="resilience-mode"]:checked').value;
+                const params = {
+                    mode: mode,
+                    horizon: parseInt($('retirement-horizon').value),
+                    inflation: parseFloat($('inflation-rate').value) / 100,
+                    targetProbability: parseFloat($('success-probability').value) / 100,
+                    numSims: parseInt($('num-simulations').value),
+                    allocations: {
+                        G: parseFloat($('g-fund-slider').value) / 100,
+                        F: parseFloat($('f-fund-slider').value) / 100,
+                        C: parseFloat($('c-fund-slider').value) / 100,
+                        S: parseFloat($('s-fund-slider').value) / 100,
+                        I: parseFloat($('i-fund-slider').value) / 100,
+                    },
+                    shocks: {
+                        equityDrop: parseFloat($('equity-drop').value),
+                        rateRise: parseFloat($('rate-rise').value),
+                        inflationShock: parseFloat($('inflation-shock').value),
+                    }
+                };
+                
+                if (mode === 'A') {
+                    params.initialValue = parseFloat($('portfolio-value').value);
+                } else {
+                    params.desiredMonthlyWithdrawal = parseFloat($('desired-monthly-withdrawal').value);
+                    params.desiredAnnualWithdrawal = params.desiredMonthlyWithdrawal * 12;
+                }
+                return params;
+            }
+
+            function runResilienceSimulation() {
+                const params = collectInputs();
+                let results;
+
+                try {
+                    if (params.mode === 'A') {
+                        results = solveForWithdrawalRate(params);
+                    } else {
+                        results = solveForPortfolioValue(params);
+                    }
+                    
+                    lastSimulationParams = params; // Save inputs
+                    lastSimulationResults = results; // Save results
+                    
+                    displayResilienceResults(results, params);
+                    downloadSummaryBtn.classList.remove('hidden');
+
+                } catch (error) {
+                    console.error("Simulation failed:", error);
+                    $('resilience-summary').innerHTML = `<span style="color: var(--danger);">An error occurred: ${error.message}</span>`;
+                }
+
+                // Hide loader, show results
+                loader.classList.add('hidden');
+                resilienceResultsContainer.classList.remove('hidden');
+                runSimulationBtn.disabled = false;
+            }
+            
+            function displayResilienceResults(results, params) {
+                const { mode } = params;
+                
+                if (results.error) {
+                    $('resilience-summary').innerHTML = `<span style="color: var(--danger);">${results.error}</span>`;
+                    $('simulation-count-display').textContent = `Simulations: ${params.numSims.toLocaleString()}`;
+                    return;
+                }
+                
+                // Shared metrics
+                $('success-prob-result').textContent = `${(results.successProbability * 100).toFixed(1)}%`;
+                $('depletion-year-result').textContent = results.depletion10th ? `Year ${results.depletion10th}` : "N/A (Success)";
+                $('simulation-count-display').textContent = `Simulations: ${results.numSims.toLocaleString()}`;
+
+                // Mode-specific metrics and summary
+                if (mode === 'A') {
+                    const annualWithdrawal = results.sustainableWithdrawal;
+                    const monthlyWithdrawal = annualWithdrawal / 12;
+
+                    $('annual-withdrawal-result').textContent = formatter.format(annualWithdrawal);
+                    $('monthly-withdrawal-result').textContent = formatter.format(monthlyWithdrawal);
+                    
+                    const shockText = params.shocks.equityDrop < 0 ? ` even with a ${(params.shocks.equityDrop * 100)}% market drop` : "";
+                    $('resilience-summary').innerHTML = 
+                        `Based on ${params.numSims.toLocaleString()} simulations, a monthly withdrawal of <strong>${formatter.format(monthlyWithdrawal)}</strong> 
+                        (growing with inflation) gives a <strong>${(results.successProbability * 100).toFixed(1)}%</strong> chance 
+                        of your <strong>${formatter.format(params.initialValue)}</strong> portfolio lasting <strong>${params.horizon}</strong> years${shockText}.`;
+                } else { // Mode B
+                    $('required-portfolio-result').textContent = intFormatter.format(results.requiredPortfolio);
+                    
+                    const shockText = params.shocks.equityDrop < 0 ? ` (with a ${(params.shocks.equityDrop * 100)}% shock)` : "";
+                    $('resilience-summary').innerHTML = 
+                        `To withdraw <strong>${formatter.format(params.desiredMonthlyWithdrawal)}/month</strong> (growing with inflation) 
+                        for <strong>${params.horizon}</strong> years with a <strong>${(results.successProbability * 100).toFixed(1)}%</strong> success rate${shockText}, 
+                        you would need a starting portfolio of about <strong>${intFormatter.format(results.requiredPortfolio)}</strong>.`;
+                }
+                
+                // Draw Chart
+                displayResilienceChart(results.percentiles, params.horizon);
+            }
+            
+            function displayResilienceChart(percentiles, horizon) {
+                const ctx = $('resilience-line-chart').getContext('2d');
+                const labels = Array.from({ length: horizon + 1 }, (_, i) => `${i}`);
+
+                if (resilienceChart) {
+                    resilienceChart.destroy();
+                }
+
+                resilienceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: '10th Percentile (Poor Outcome)',
+                                data: percentiles.p10,
+                                borderColor: 'rgba(153, 0, 0, 0.6)',
+                                backgroundColor: 'rgba(153, 0, 0, 0.1)',
+                                fill: false,
+                                tension: 0.1,
+                                pointRadius: 0
+                            },
+                            {
+                                label: '50th Percentile (Median)',
+                                data: percentiles.p50,
+                                borderColor: 'var(--navy)',
+                                backgroundColor: 'rgba(0, 51, 102, 0.1)',
+                                fill: false,
+                                borderWidth: 3,
+                                tension: 0.1,
+                                pointRadius: 0
+                            },
+                            {
+                                label: '90th Percentile (Good Outcome)',
+                                data: percentiles.p90,
+                                borderColor: 'rgba(0, 100, 0, 0.6)',
+                                backgroundColor: 'rgba(0, 100, 0, 0.1)',
+                                fill: false,
+                                tension: 0.1,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + (value / 1000) + 'k';
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Portfolio Value'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Year of Retirement'
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.parsed.y !== null) {
+                                            label += formatter.format(context.parsed.y);
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            function downloadSummary() {
+                if (!lastSimulationParams || !lastSimulationResults) {
+                    alert('Please run a simulation before downloading.');
+                    return;
+                }
+                
+                const summary = {
+                    reportDate: new Date().toISOString(),
+                    inputs: lastSimulationParams,
+                    outputs: lastSimulationResults
+                };
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(summary, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "tsp_resilience_summary.json");
+                document.body.appendChild(downloadAnchorNode); // required for firefox
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            }
+
+            // ======================================================
+            // MONTE CARLO SIMULATION ENGINE
+            // ======================================================
+
+            const FUND_PARAMS = {
+                // format: { mean, stdDev }
+                G: { mean: 0.025, stdDev: 0.005 },
+                F: { mean: 0.035, stdDev: 0.050 },
+                C: { mean: 0.070, stdDev: 0.160 },
+                S: { mean: 0.075, stdDev: 0.200 },
+                I: { mean: 0.065, stdDev: 0.170 }
+            };
+
+            // Pre-generate standard normal random numbers for performance
+            // Uses Box-Muller transform
+            function pregenerateStandardNormals(count) {
+                const normals = new Float32Array(count);
+                for (let i = 0; i < count; i += 2) {
+                    let u1 = 0, u2 = 0;
+                    while (u1 === 0) u1 = Math.random();
+                    while (u2 === 0) u2 = Math.random();
+                    
+                    const z1 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+                    const z2 = Math.sqrt(-2.0 * Math.log(u1)) * Math.sin(2.0 * Math.PI * u2);
+                    
+                    normals[i] = z1;
+                    if (i + 1 < count) {
+                        normals[i + 1] = z2;
+                    }
+                }
+                return normals;
+            }
+
+            /**
+             * Runs a single simulation of portfolio depletion.
+             * Reads from pre-generated random number arrays.
+             */
+            function runSingleSimulation(params, annualWithdrawal, simIndex, randoms) {
+                let currentValue = params.initialValue;
+                let currentWithdrawal = annualWithdrawal;
+                const balanceHistory = [currentValue];
+                
+                const simOffset = simIndex * params.horizon;
+
+                for (let year = 1; year <= params.horizon; year++) {
+                    const isYear1 = (year === 1);
+                    const randIdx = simOffset + year - 1; // Index for this sim-year
+                    
+                    // --- 1. Calculate Portfolio Return ---
+                    const equityDrop = isYear1 ? params.shocks.equityDrop : 0;
+                    const rateRise = isYear1 ? params.shocks.rateRise : 0;
+                    
+                    // Get return = (pregen_normal * stdDev) + mean
+                    const gReturn = (randoms.G[randIdx] * FUND_PARAMS.G.stdDev + FUND_PARAMS.G.mean) - (isYear1 ? rateRise * 0.5 : 0);
+                    const fReturn = (randoms.F[randIdx] * FUND_PARAMS.F.stdDev + FUND_PARAMS.F.mean) - (isYear1 ? rateRise * 1.0 : 0);
+                    const cReturn = (randoms.C[randIdx] * FUND_PARAMS.C.stdDev + FUND_PARAMS.C.mean) + equityDrop;
+                    const sReturn = (randoms.S[randIdx] * FUND_PARAMS.S.stdDev + FUND_PARAMS.S.mean) + equityDrop;
+                    const iReturn = (randoms.I[randIdx] * FUND_PARAMS.I.stdDev + FUND_PARAMS.I.mean) + equityDrop;
+
+                    const totalReturn =
+                        (gReturn * params.allocations.G) +
+                        (fReturn * params.allocations.F) +
+                        (cReturn * params.allocations.C) +
+                        (sReturn * params.allocations.S) +
+                        (iReturn * params.allocations.I);
+
+                    // --- 2. Apply Return ---
+                    currentValue *= (1 + totalReturn);
+                    
+                    // --- 3. Make Withdrawal (at end of year) ---
+                    currentValue -= currentWithdrawal;
+
+                    // --- 4. Check for Depletion ---
+                    if (currentValue <= 0) {
+                        balanceHistory.push(0);
+                        return { success: false, depletionYear: year, history: balanceHistory };
+                    }
+
+                    // --- 5. Inflate Withdrawal for Next Year ---
+                    const inflationShock = isYear1 ? params.shocks.inflationShock : 0;
+                    currentWithdrawal *= (1 + params.inflation + inflationShock);
+                    
+                    balanceHistory.push(currentValue);
+                }
+
+                return { success: true, depletionYear: null, history: balanceHistory };
+            }
+
+            /**
+             * Runs the full Monte Carlo simulation 'n' times.
+             */
+            function runMonteCarlo(params, annualWithdrawal) {
+                let successCount = 0;
+                const allHistories = [];
+                const depletionYears = [];
+                const numSims = params.numSims;
+                const numValues = numSims * params.horizon;
+
+                // 1. Pre-generate all random numbers for performance
+                const randoms = {
+                    G: pregenerateStandardNormals(numValues),
+                    F: pregenerateStandardNormals(numValues),
+                    C: pregenerateStandardNormals(numValues),
+                    S: pregenerateStandardNormals(numValues),
+                    I: pregenerateStandardNormals(numValues)
+                };
+                
+                // 2. Run simulations
+                for (let i = 0; i < numSims; i++) {
+                    const result = runSingleSimulation(params, annualWithdrawal, i, randoms);
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        depletionYears.push(result.depletionYear);
+                    }
+                    // Pad history if it failed early, to make percentile calculation easier
+                    while (result.history.length <= params.horizon) {
+                        result.history.push(0);
+                    }
+                    allHistories.push(result.history);
+                }
+                
+                const successProbability = successCount / numSims;
+                
+                // 3. Calculate percentiles for the chart
+                const percentiles = { p10: [], p50: [], p90: [] };
+                for (let year = 0; year <= params.horizon; year++) {
+                    const yearValues = allHistories.map(history => history[year]).sort((a, b) => a - b);
+                    percentiles.p10.push(yearValues[Math.floor(numSims * 0.10)]);
+                    percentiles.p50.push(yearValues[Math.floor(numSims * 0.50)]);
+                    percentiles.p90.push(yearValues[Math.floor(numSims * 0.90)]);
+                }
+
+                // 4. Calculate 10th percentile depletion year
+                let depletion10th = null;
+                if (depletionYears.length > 0) {
+                    depletionYears.sort((a, b) => a - b);
+                    depletion10th = depletionYears[Math.floor(depletionYears.length * 0.10)] || depletionYears[0];
+                }
+
+                return { numSims, successProbability, percentiles, depletion10th };
+            }
+            
+            /**
+             * Solves for the sustainable withdrawal amount using binary search.
+             */
+            function solveForWithdrawalRate(params) {
+                let minWithdrawal = 0;
+                let maxWithdrawal = params.initialValue * 0.15; // 15% SWR is a high upper bound
+                let bestWithdrawal = 0;
+                
+                const iterations = 15; // Binary search iterations
+                
+                for (let i = 0; i < iterations; i++) {
+                    const testWithdrawal = (minWithdrawal + maxWithdrawal) / 2;
+                    const results = runMonteCarlo(params, testWithdrawal);
+                    
+                    if (results.successProbability >= params.targetProbability) {
+                        bestWithdrawal = testWithdrawal;
+                        minWithdrawal = testWithdrawal;
+                    } else {
+                        maxWithdrawal = testWithdrawal;
+                    }
+                }
+                
+                const finalResults = runMonteCarlo(params, bestWithdrawal);
+                return {
+                    sustainableWithdrawal: bestWithdrawal,
+                    ...finalResults
+                };
+            }
+            
+            /**
+             * Solves for the required portfolio value using binary search.
+             */
+            function solveForPortfolioValue(params) {
+                let minPortfolio = 10000; // $10k
+                let maxPortfolio = 10000000; // $10M
+                let bestPortfolio = maxPortfolio;
+                let lastSuccessProb = 0;
+                
+                const iterations = 16; // Binary search iterations
+                
+                for (let i = 0; i < iterations; i++) {
+                    const testPortfolio = (minPortfolio + maxPortfolio) / 2;
+                    const localParams = { ...params, initialValue: testPortfolio };
+                    const results = runMonteCarlo(localParams, params.desiredAnnualWithdrawal);
+                    lastSuccessProb = results.successProbability;
+                    
+                    if (lastSuccessProb >= params.targetProbability) {
+                        bestPortfolio = testPortfolio; // This works, try lower
+                        maxPortfolio = testPortfolio;
+                    } else {
+                        minPortfolio = testPortfolio; // This failed, must try higher
+                    }
+                }
+                
+                // Check if we ever succeeded
+                if (bestPortfolio === 10000000 && lastSuccessProb < params.targetProbability) {
+                    // Even at $10M, we failed. Try one last time at $20M
+                    const finalTestParams = { ...params, initialValue: 20000000 };
+                    const finalTestResults = runMonteCarlo(finalTestParams, params.desiredAnnualWithdrawal);
+                    if (finalTestResults.successProbability < params.targetProbability) {
+                        return { 
+                            error: `The target may be too aggressive. Even a $20M portfolio had a ${ (finalTestResults.successProbability * 100).toFixed(1) }% success rate. Try a lower withdrawal or different settings.`,
+                            ...finalTestResults 
+                        };
+                    } else {
+                        bestPortfolio = 20000000;
+                    }
+                }
+
+                // Run one final simulation with the "best" value to get final chart data
+                const finalParams = { ...params, initialValue: bestPortfolio };
+                const finalResults = runMonteCarlo(finalParams, params.desiredAnnualWithdrawal);
+                
+                return {
+                    requiredPortfolio: bestPortfolio,
+                    ...finalResults
+                };
+            }
+            
+            // --- Initializer calls ---
+            initializeInsightsTab(); // Initialize the new insights tab
+            updateAllocationTotal(); // Initial call for resilience tab sliders
+
+        });
+    </script>
+</body>
+</html>
+
